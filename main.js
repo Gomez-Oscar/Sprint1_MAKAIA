@@ -17,24 +17,26 @@ const bills = [
   { value: 2000, quantity: 0, subtotal: 0, counter: 0, flag: false },
 ];
 
-let username,
+let id,
   password,
   amountToWithdraw,
   auxAmount,
   amountInAtm = 0,
   amountToGive = 0;
 
+//! ingresar con cedula
+
 while (true) {
-  username = prompt('Please enter your username or enter "exit" to finish');
-  if (username === 'exit') break;
+  id = prompt('Please enter your ID or enter "exit" to finish');
+  if (id === 'exit') break;
   password = prompt('Please enter your password');
 
   const foundUser = users.find(
-    element => element.username === username && element.password === password
+    element => element.id === id && element.password === password
   );
 
   if (!foundUser) {
-    alert('The user entered does not exist');
+    alert('The user entered does not exist, please try again');
   } else if (foundUser.type === 'admin') {
     amountInAtm = 0;
     for (const bill of bills) {
@@ -53,8 +55,9 @@ while (true) {
         `Number of $${bill.value} bills: ${bill.quantity} - Subtotal: $${bill.subtotal}`
       )
     );
+
     console.log(`\n`);
-    console.log('%cTOTAL AMOUNT IN ATM: ' + amountInAtm, 'color: greenyellow');
+    console.log('%cTOTAL AMOUNT IN ATM: $' + amountInAtm, 'color: greenyellow');
   } else if (foundUser.type === 'client') {
     if (amountInAtm === 0) {
       console.log('\nATM IN MAINTENANCE, PLEASE COME BACK SOON!');
@@ -62,8 +65,9 @@ while (true) {
       amountToWithdraw = Number.parseInt(
         prompt('How much money do you want to withdraw?')
       );
+
       console.log(`\n`);
-      console.log('%cMONEY TO WITHDRAW: ' + amountToWithdraw, 'color: tomato');
+      console.log('%cMONEY TO WITHDRAW: $' + amountToWithdraw, 'color: tomato');
 
       auxAmount = amountToWithdraw;
 
@@ -144,17 +148,16 @@ while (true) {
       }
 
       console.log(`\n`);
-
       console.log(
         '%cTOTAL AMOUNT TO GIVE: ' + amountToGive,
         'background-color: green'
       );
+
       amountInAtm = 0;
       amountToGive = 0;
       bills.map(bill => (amountInAtm += bill.value * bill.quantity));
 
       console.log(`\n`);
-
       console.log('%cREMAINING BILLS:', 'color: sandybrown');
 
       bills.map(bill =>
