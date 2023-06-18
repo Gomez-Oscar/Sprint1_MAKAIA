@@ -9,12 +9,12 @@ const users = [
 ];
 
 const bills = [
-  { value: 100000, quantity: 0, subtotal: 0, counter: 0, flag: false },
-  { value: 50000, quantity: 0, subtotal: 0, counter: 0, flag: false },
-  { value: 20000, quantity: 0, subtotal: 0, counter: 0, flag: false },
-  { value: 10000, quantity: 0, subtotal: 0, counter: 0, flag: false },
-  { value: 5000, quantity: 0, subtotal: 0, counter: 0, flag: false },
-  { value: 2000, quantity: 0, subtotal: 0, counter: 0, flag: false },
+  { value: 100000, quantity: 0, counter: 0, flag: false },
+  { value: 50000, quantity: 0, counter: 0, flag: false },
+  { value: 20000, quantity: 0, counter: 0, flag: false },
+  { value: 10000, quantity: 0, counter: 0, flag: false },
+  { value: 5000, quantity: 0, counter: 0, flag: false },
+  { value: 2000, quantity: 0, counter: 0, flag: false },
 ];
 
 let id,
@@ -24,8 +24,8 @@ let id,
   amountToGive = 0;
 
 while (true) {
-  id = prompt(`Welcome to your ATM Machine!\n\nPlease enter your ID`);
-  password = prompt('Please enter your password');
+  id = prompt(`Welcome to your ATM Machine!\n\nPlease enter your ID:`);
+  password = prompt('Please enter your password:');
 
   const foundUser = users.find(
     element => element.id === id && element.password === password
@@ -36,24 +36,15 @@ while (true) {
   } else if (foundUser.type === 'admin') {
     amountInAtm = 0;
     alert(`Welcome back ${foundUser.username}!`);
-    for (const bill of bills) {
-      bill.quantity += Number.parseInt(
-        prompt(`Please enter the number of $${bill.value} bills`)
-      );
-      bill.subtotal = bill.value * bill.quantity;
-      amountInAtm += bill.subtotal;
-    }
+
+    chargeAtm(bills);
 
     console.log(`\n-------------------------------------------------------`);
     console.log('%cATM WAS CORRECTLY CHARGED!', 'color: green');
 
-    bills.map(bill =>
-      console.log(
-        `Number of $${bill.value.toLocaleString()} bills: ${
-          bill.quantity
-        } - Subtotal: $${bill.subtotal.toLocaleString()}`
-      )
-    );
+    showBillsInAtm(bills);
+
+    calculateTotalAmountInAtm(bills);
 
     console.log(`\n`);
     console.log(
@@ -62,7 +53,7 @@ while (true) {
     );
   } else if (foundUser.type === 'client') {
     if (amountInAtm === 0) {
-      alert('\nATM IN MAINTENANCE, PLEASE COME BACK SOON!');
+      alert('ATM IN MAINTENANCE, PLEASE COME BACK SOON!');
     } else {
       amountToWithdraw = Number.parseInt(
         prompt('How much money do you want to withdraw?')
@@ -74,33 +65,17 @@ while (true) {
         'color: tomato'
       );
 
-      while (amountToWithdraw >= bills[bills.length - 1].value) {
-        for (const bill of bills) {
-          if (!bill.flag && bill.quantity !== 0) {
-            for (let quantity = bill.quantity; quantity > 0; quantity--) {
-              if (Math.sign(amountToWithdraw - bill.value * quantity) >= 0) {
-                amountToWithdraw -= bill.value * quantity;
-                bill.counter = quantity;
-                bill.flag = true;
-                break;
-              }
-            }
-          }
-        }
-        break;
-      }
+      calculateBillsToGive(bills);
 
       console.log(`\nNUMBER OF BILLS TO GIVE:`);
 
-      for (const bill of bills) {
-        console.log(
-          `Number of $${bill.value.toLocaleString()} bills: ${bill.counter}`
-        );
-        amountToGive += bill.value * bill.counter;
-        bill.quantity -= bill.counter;
-        bill.counter = 0;
-        bill.flag = false;
-      }
+      showBillsToGive(bills);
+
+      // variables are set to 0 to not affect the calculations below
+      amountInAtm = 0;
+      amountToGive = 0;
+
+      calculateTotalAmountToGive(bills);
 
       console.log(`\n`);
       console.log(
@@ -108,20 +83,14 @@ while (true) {
         'background-color: green'
       );
 
-      amountInAtm = 0;
-      amountToGive = 0;
-      bills.map(bill => (amountInAtm += bill.value * bill.quantity));
+      calculateRemainingBills(bills);
 
       console.log(`\n`);
       console.log('%cREMAINING BILLS:', 'color: sandybrown');
 
-      bills.map(bill =>
-        console.log(
-          `Number of $${bill.value.toLocaleString()} bills: ${
-            bill.quantity
-          } - Subtotal: $${bill.subtotal.toLocaleString()}`
-        )
-      );
+      showBillsInAtm(bills);
+
+      calculateTotalAmountInAtm(bills);
 
       console.log(`\n`);
       console.log(
@@ -132,4 +101,66 @@ while (true) {
     }
   }
   if (prompt('Would you like to continue? (y/n)') === 'n') break;
+}
+
+function chargeAtm(bills) {
+  for (const bill of bills) {
+    bill.quantity += Number.parseInt(
+      prompt(`Please enter the number of $${bill.value} bills`)
+    );
+  }
+}
+
+function showBillsInAtm(bills) {
+  bills.map(bill =>
+    console.log(
+      `Number of $${bill.value.toLocaleString()} bills: ${
+        bill.quantity
+      } - Subtotal: $${(bill.value * bill.quantity).toLocaleString()}`
+    )
+  );
+}
+
+function showBillsToGive(bills) {
+  bills.map(bill =>
+    console.log(
+      `Number of $${bill.value.toLocaleString()} bills: ${
+        bill.counter
+      } - Subtotal: $${(bill.value * bill.counter).toLocaleString()}`
+    )
+  );
+}
+
+function calculateBillsToGive(bills) {
+  while (amountToWithdraw >= bills[bills.length - 1].value) {
+    for (const bill of bills) {
+      if (!bill.flag && bill.quantity !== 0) {
+        for (let quantity = bill.quantity; quantity > 0; quantity--) {
+          if (Math.sign(amountToWithdraw - bill.value * quantity) >= 0) {
+            amountToWithdraw -= bill.value * quantity;
+            bill.counter = quantity;
+            bill.flag = true;
+            break;
+          }
+        }
+      }
+    }
+    break;
+  }
+}
+
+function calculateRemainingBills(bills) {
+  for (const bill of bills) {
+    bill.quantity -= bill.counter;
+    bill.counter = 0;
+    bill.flag = false;
+  }
+}
+
+function calculateTotalAmountInAtm(bills) {
+  bills.map(bill => (amountInAtm += bill.value * bill.quantity));
+}
+
+function calculateTotalAmountToGive(bills) {
+  bills.map(bill => (amountToGive += bill.value * bill.counter));
 }
