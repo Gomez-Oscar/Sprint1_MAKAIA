@@ -1,4 +1,4 @@
-// Cajero electrónico con JS
+// ATM Machine with JS
 
 const users = [
   { username: 'Javier', password: '1234', id: '0000', type: 'admin' },
@@ -23,6 +23,7 @@ let id,
   amountInAtm = 0,
   amountToGive = 0;
 
+// infinity cicle to repeat the program over and over again
 while (true) {
   id = prompt(`Welcome to your ATM Machine!\n\nPlease enter your ID:`);
   password = prompt('Please enter your password:');
@@ -102,15 +103,18 @@ while (true) {
       console.log(`\n-------------------------------------------------------`);
     }
   }
+
+  // this was added to have the possibility to exit the program
   if (prompt('Would you like to continue? (y/n)') === 'n') break;
 }
 
 function chargeAtm(bills) {
-  for (const bill of bills) {
-    bill.quantity += Number.parseInt(
-      prompt(`Please enter the number of $${bill.value} bills`)
-    );
-  }
+  bills.map(
+    bill =>
+      (bill.quantity += Number.parseInt(
+        prompt(`Please enter the number of $${bill.value} bills`)
+      ))
+  );
 }
 
 function showBillsInAtm(bills) {
