@@ -27,6 +27,7 @@ while (true) {
   id = prompt(`Welcome to your ATM Machine!\n\nPlease enter your ID:`);
   password = prompt('Please enter your password:');
 
+  // user entered is identified
   const foundUser = users.find(
     element => element.id === id && element.password === password
   );
@@ -34,6 +35,7 @@ while (true) {
   if (!foundUser) {
     alert('The user entered does not exist.');
   } else if (foundUser.type === 'admin') {
+    // amount is set to 0 to avoid error in the calculation below
     amountInAtm = 0;
     alert(`Welcome back ${foundUser.username}!`);
 
@@ -131,6 +133,7 @@ function showBillsToGive(bills) {
   );
 }
 
+// function to calculate how many bills give to the user (using substraction)
 function calculateBillsToGive(bills) {
   while (amountToWithdraw >= bills[bills.length - 1].value) {
     for (const bill of bills) {
